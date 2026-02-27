@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DENISIA Launcher | EMPIRE EDITION</title>
+    <style>
+        /* ЛЮБИМАЯ ГРАФИКА ИМПЕРАТОРА (СОХРАНЕНО НАВСЕГДА) */
+        * { box-sizing: border-box; -webkit-user-select: none; user-select: none; cursor: crosshair; transform: translateZ(0); }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #00BFFF; font-family: 'Arial Black', sans-serif; overflow: hidden; }
+        
+        #universe-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #001a33 0%, #000 85%); z-index: -10; }
+        .star { position: absolute; background: #00BFFF; border-radius: 50%; animation: twinkle var(--d) infinite ease-in-out; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.3); } }
+
+        .obj { position: fixed; z-index: -2; pointer-events: none; }
+        .ball-3d { width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 10px 20px rgba(0, 191, 255, 0.4); animation: bounce 3s ease-in-out infinite; }
+        .blue-ball { background: radial-gradient(circle at 20px 20px, #00BFFF, #000); left: 15%; top: 10%; }
+        .green-ball { background: radial-gradient(circle at 20px 20px, #00FF00, #000); right: 15%; top: 70%; animation-delay: 1.5s; box-shadow: 0 10px 20px rgba(0, 255, 0, 0.3); }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-300px); } }
+        
+        .ufo { font-size: 50px; animation: flyLR 12s linear infinite; top: 20%; }
+        .rocket { font-size: 40px; animation: flyDiagonal 7s linear infinite; }
+        .unicorn { font-size: 45px; animation: flyRL 10s linear infinite; top: 40%; }
+        @keyframes flyLR { from { left: -100px; } to { left: 110vw; } }
+        @keyframes flyRL { from { right: -100px; } to { right: 110vw; } }
+        @keyframes flyDiagonal { from { transform: translate(-10vw, 100vh) rotate(45deg); } to { transform: translate(110vw, -10vh) rotate(45deg); } }
+
+        /* ЭКРАН ВХОДА */
+        #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .auth-container { display: flex; width: 95%; max-width: 1100px; height: 75vh; gap: 20px; }
+        .video-box { flex: 1.5; border: 2px solid #00BFFF; box-shadow: 0 0 30px rgba(0, 191, 255, 0.3); }
+        .login-box { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+        
+        .logo { font-size: 60px; text-shadow: 0 0 25px #00BFFF; margin: 0; line-height: 1; }
+        .tagline { letter-spacing: 12px; font-size: 16px; margin-bottom: 25px; color: #fff; }
+
+        .btn-pay { display: block; background: #00BFFF; color: #000; padding: 20px; text-decoration: none; font-size: 20px; font-weight: bold; margin: 15px 0; transition: 0.3s; border: none; cursor: pointer; width: 100%; }
+        .btn-pay:hover { transform: scale(1.05); box-shadow: 0 0 30px #00BFFF; background: #fff; }
+
+        /* МОДАЛКА ОПЛАТЫ (TON) */
+        #pay-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 100000; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
+        .qr-card { background: #fff; padding: 20px; border-radius: 15px; margin: 20px; box-shadow: 0 0 50px #fff; }
+        
+        /* ИГРОВОЕ ОКНО */
+        #game-view { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000000; }
+        #game-frame { width: 100%; height: 100%; border: none; }
+        .close-hint { position: absolute; top: 10px; left: 10px; color: #00BFFF; font-size: 10px; opacity: 0.5; }
+
+        /* ЛАУНЧЕР */
+        #main-launcher { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; width: 100%; }
+        .big-d-container { position: fixed; top: 45%; left: 50%; transform: translate(-50%, -50%); z-index: -4; }
+        .big-d-cube { position: relative; width: 200px; height: 300px; transform-style: preserve-3d; animation: rotate3D 10s infinite linear; }
+        .d-layer { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 350px; font-weight: 900; color: #00BFFF; opacity: 0.6; text-shadow: 0 0 50px #00BFFF; }
+        @keyframes rotate3D { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; width: 90%; max-width: 900px; z-index: 10; margin-top: 30px; }
+        .game-btn { background: rgba(0, 0, 0, 0.8); border: 2px solid #00BFFF; color: #00BFFF; padding: 20px; text-align: center; text-decoration: none; font-size: 14px; font-weight: bold; transition: 0.3s; backdrop-filter: blur(10px); cursor: pointer; }
+        .game-btn:hover { background: #00BFFF; color: #000; transform: scale(1.05); }
+
+        .trail { position: fixed; width: 8px; height: 8px; background: #00BFFF; border-radius: 50%; pointer-events: none; z-index: 10000; animation: fade 0.5s forwards; }
+        @keyframes fade { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(3); } }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="universe-bg"></div>
+
+    <div id="pay-modal">
+        <h1 style="color:#00BFFF;">SCAN TO UNLOCK CAFE</h1>
+        <div class="qr-card"><img id="qr-img" src="" style="width:250px; height:250px;"></div>
+        <p id="pay-status" style="color:yellow;">AWAITING TON TRANSACTION...</p>
+        <button class="game-btn" style="width:200px;" onclick="checkPayment()">VERIFY</button>
+        <button style="background:none; border:none; color:red; cursor:pointer; margin-top:10px;" onclick="closePay()">CANCEL</button>
+    </div>
+
+    <div id="game-view">
+        <div class="close-hint">ESC TO EXIT MISSION</div>
+        <iframe id="game-frame" src=""></iframe>
+    </div>
+
+    <div id="auth-screen">
+        <div class="auth-container">
+            <div class="video-box">
+                <iframe width="100%" height="100%" src="https://www.youtube.com/embed/hnOIV5_egYc?autoplay=1&mute=0&loop=1&playlist=hnOIV5_egYc" frameborder="0"></iframe>
+            </div>
+            <div class="login-box">
+                <h1 class="logo">DENISIA</h1>
+                <div class="tagline">Launcher</div>
+                <button class="btn-pay" onclick="openPay(450, 'ETERNAL')">BUY ETERNAL ($2500)</button>
+                <button class="btn-pay" style="background:transparent; color:#00BFFF; border:1px solid #00BFFF;" onclick="openPay(35, 'LEASE')">RENT CAFE ($200)</button>
+                <button style="margin-top:10px; background:none; border:none; color:#333; cursor:pointer;" onclick="startTrial()">START 7-DAY TRIAL</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-launcher">
+        <div class="big-d-container">
+            <div class="big-d-cube"><div class="d-layer">D</div></div>
+        </div>
+        <div class="obj ball-3d blue-ball"></div>
+        <div class="obj ball-3d green-ball"></div> 
+        <div class="obj ufo">🛸</div>
+        <div class="obj rocket">🚀</div>
+        <div class="obj unicorn">🦄</div>
+
+        <div class="logo" style="font-size: 80px;">DENISIA</div>
+        <div id="net-info" style="font-size: 14px; color: #00FF00; letter-spacing: 5px;">NETWORK: ONLINE</div>
+
+        <div class="grid">
+            <div onclick="launchGame('https://denis19sl02-sketch.github.io/Funny-Balls-/')" class="game-btn">Funny Balls</div>
+            <div onclick="launchGame('https://denis19sl02-sketch.github.io/Aliens-/')" class="game-btn">Aliens</div>
+            <div onclick="launchGame('https://denis19sl02-sketch.github.io/Saving-The-Titanic/')" class="game-btn">Saving The Titanic</div>
+            <div onclick="launchGame('https://denis19sl02-sketch.github.io/Racing-Horses-/')" class="game-btn">Racing Horses</div>
+            <div onclick="launchGame('https://denis19sl02-sketch.github.io/Zombie-In-Forest-/')" class="game-btn">Dark Woods</div>
+            <div onclick="play('https://denis19sl02-sketch.github.io/Funny-Balls-2/')" class="game-btn">Funny Balls 2</div>
+            <div onclick="launchGame('https://denis19sl02-sketch.github.io/DENISIAGRAM-/')" class="game-btn">DENISIAGRAM</div>
+        </div>
+    </div>
+
+    <script>
+        const WALLET = "UQB0HK2LubFblnzTNWjuchU0CtFjEfFrlRXO23YkwVKaoyHQ";
+        let userIp = ""; let currentTarget = 0; let currentType = "";
+
+        async function init() {
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const d = await res.json();
+                userIp = d.ip.replace(/\./g, '_');
+                
+                // IP SYNC CHECK
+                if (localStorage.getItem('eternal_' + userIp)) {
+                    enterLauncher("ETERNAL CAFE UNLOCKED");
+                } else if (localStorage.getItem('expiry_' + userIp)) {
+                    if (Date.now() < parseInt(localStorage.getItem('expiry_' + userIp))) {
+                        enterLauncher("Launcher");
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function enterLauncher(status) {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-launcher').style.display = 'flex';
+            document.getElementById('net-info').innerText = status;
+        }
+
+        function openPay(amt, type) {
+            currentTarget = amt; currentType = type;
+            const link = `ton://transfer/${WALLET}?amount=${amt}000000000`;
+            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(link)}`;
+            document.getElementById('pay-modal').style.display = 'flex';
+        }
+
+        function closePay() { document.getElementById('pay-modal').style.display = 'none'; }
+
+        async function checkPayment() {
+            const log = document.getElementById('pay-status');
+            log.innerText = "SCANNING BLOCKCHAIN...";
+            try {
+                const res = await fetch(`https://toncenter.com/api/v2/getTransactions?address=${WALLET}&limit=5`);
+                const data = await res.json();
+                const now = Math.floor(Date.now() / 1000);
+                const ok = data.result.some(tx => (now - tx.utime) < 1800 && (tx.in_msg.value/1e9) >= (currentTarget - 1));
+                if (ok) {
+                    if (currentType === 'ETERNAL') localStorage.setItem('eternal_' + userIp, 'true');
+                    else localStorage.setItem('expiry_' + userIp, Date.now() + (30*24*60*60*1000));
+                    location.reload();
+                } else { log.innerText = "NOT FOUND. TRY AGAIN IN 1 MIN."; }
+            } catch (e) { log.innerText = "API ERROR."; }
+        }
+
+        function startTrial() {
+            if (!localStorage.getItem('expiry_' + userIp)) {
+                localStorage.setItem('expiry_' + userIp, Date.now() + (7*24*60*60*1000));
+                enterLauncher("7-DAY TRIAL ACTIVE");
+            } else { alert("TRIAL USED ON THIS IP."); }
+        }
+
+        function launchGame(url) {
+            document.getElementById('game-frame').src = url;
+            document.getElementById('game-view').style.display = 'block';
+        }
+
+        window.addEventListener('keydown', e => {
+            if (e.key === "Escape") {
+                document.getElementById('game-view').style.display = 'none';
+                document.getElementById('game-frame').src = "";
+            }
+            if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I")) e.preventDefault();
+        });
+
+        // ЛЮБИМАЯ ГРАФИКА
+        const universe = document.getElementById('universe-bg');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = '2px'; star.style.height = '2px';
+            star.style.left = Math.random() * 100 + '%'; star.style.top = Math.random() * 100 + '%';
+            star.style.setProperty('--d', (Math.random() * 2 + 1) + 's');
+            universe.appendChild(star);
+        }
+
+        document.addEventListener('mousemove', e => {
+            const t = document.createElement('div');
+            t.className = 'trail';
+            t.style.left = e.pageX + 'px'; t.style.top = e.pageY + 'px';
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 500);
+        });
+
+        window.onload = init;
+    </script>
+</body>
+</html>
