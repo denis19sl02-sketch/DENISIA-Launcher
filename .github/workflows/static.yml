@@ -1,0 +1,24 @@
+name: Deploy Static HTML
+
+# Запускать при любом push в main
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Клонируем репозиторий
+      - uses: actions/checkout@v3
+
+      # 2. Загружаем все статические файлы как артефакт
+      - name: Upload static site
+        uses: actions/upload-artifact@v3
+        with:
+          name: static-site
+          path: |
+            *.html
+            *.css
+            *.js
+            assets/
