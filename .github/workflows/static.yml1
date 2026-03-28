@@ -1,0 +1,39 @@
+name: HTML Build
+
+# Запускать при push
+on:
+  push:
+    branches: [ main ]  # или master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Склонировать репозиторий
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      # 2. Установить Node.js (если нужен для сборки)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # 3. (Если есть сборка, например с npm)
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build website
+        run: npm run build || echo "No build script, skipping"
+
+      # 4. Загрузить сайт как артефакт
+      - name: Upload site
+        uses: actions/upload-artifact@v3
+        with:
+          name: site
+          path: |
+            *.html
+            css/
+            js/
+            assets/
