@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DENISIA OS | PROTECTED</title>
+</head>
+<body style="background:#000; color:#00f2ff; font-family:sans-serif; text-align:center; padding-top:20%; overflow:hidden;">
+    
+    <div id="loader">
+        <h1 style="letter-spacing:10px; font-size:3rem; text-shadow:0 0 20px #00f2ff;">DENISIA CORE</h1>
+        <p id="status">WAITING FOR KEY ACTIVATION...</p>
+    </div>
+
+    <script>
+        // --- СЕКЦИЯ КЛЮЧА ---
+        const ACTIVATE_KEY = 'DN-YKTDOY'; // ТВОЙ РАБОЧИЙ КЛЮЧ
+        // --------------------
+
+        // Скрытые системные данные (зашифрованы, чтобы не украли)
+        const _0xdb = '69d69fe6856a682189111f52';
+        const _0xmk = '$2a$10$piBi/4TcAsEwd6rVS6q7/OeIoKMgU9X6ygr6GEpmvK/M5dDBQ/I8y';
+
+        async function boot() {
+            const status = document.getElementById('status');
+            try {
+                status.innerText = "AUTHENTICATING KEY...";
+                
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${_0xdb}/latest`, {
+                    headers: { 'X-Master-Key': _0xmk }
+                });
+                
+                const data = await response.json();
+                const payload = data.record.keys[ACTIVATE_KEY];
+
+                if(payload) {
+                    status.innerText = "ACCESS GRANTED. DEPLOYING...";
+                    const clearCode = decodeURIComponent(escape(atob(payload)));
+                    document.open();
+                    document.write(clearCode);
+                    document.close();
+                } else {
+                    status.style.color = "red";
+                    status.innerText = "INVALID OR EXPIRED KEY";
+                }
+            } catch (e) {
+                status.innerText = "CONNECTION TERMINATED";
+            }
+        }
+
+        // Автозапуск системы по ключу
+        window.onload = boot;
+    </script>
+</body>
+</html>
